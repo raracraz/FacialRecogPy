@@ -1,35 +1,42 @@
 import PySimpleGUI as sg
-import cv2 
+import cv2
 
-layout = [
-    [sg.Image(key = '-IMAGE-')],
-    [sg.Text('People in picture: 0', key = '-TEXT-', expand_x = True, justification = 'center')],
-]
 
-window = sg.Window('Face Detector', layout)
+def main():
+    layout = [
+        [sg.Image(key='-IMAGE-')],
+        [sg.Text('People in picture: 0', key='-TEXT-',
+                expand_x=True, justification='center')],
+    ]
 
-# get video
-video = cv2.VideoCapture(0)
-face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
+    window = sg.Window('Face Detector', layout)
 
-while True:
-    event, values = window.read(timeout = 0)
-    if event == sg.WIN_CLOSED:
-        break
+    # get video
+    video = cv2.VideoCapture(0)
+    face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
 
-    _, frame = video.read()
-    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    faces = face_cascade.detectMultiScale(gray, scaleFactor = 1.5, minNeighbors = 5, minSize = (50, 50))
+    while True:
+        event, values = window.read(timeout=0)
+        if event == sg.WIN_CLOSED:
+            break
 
-    # draw the rectangle around the faces
-    for (x, y, w, h) in faces:
-        cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
-        
+        _, frame = video.read()
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        faces = face_cascade.detectMultiScale(
+            gray, scaleFactor=1.5, minNeighbors=5, minSize=(50, 50))
 
-    #update the image
-    imgbytes = cv2.imencode('.png', frame)[1].tobytes()
-    window['-IMAGE-'].update(data = imgbytes)
+        # draw the rectangle around the faces
+        for (x, y, w, h) in faces:
+            cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
-    #update the text
-    window['-TEXT-'].update(f'People in picture: {len(faces)}')
-window.close()
+        # update the image
+        imgbytes = cv2.imencode('.png', frame)[1].tobytes()
+        window['-IMAGE-'].update(data=imgbytes)
+
+        # update the text
+        window['-TEXT-'].update(f'People in picture: {len(faces)}')
+    window.close()
+
+
+if __name__ == '__main__':
+    main()
